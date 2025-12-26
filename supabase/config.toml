@@ -1,0 +1,18 @@
+# For detailed configuration reference documentation, visit:
+# https://supabase.com/docs/guides/local-development/cli/config
+project_id = "keysely-platform-backend"
+
+[functions.create-connect-account]
+verify_jwt = true
+
+[functions.create-marketplace-payment]
+verify_jwt = true
+
+[functions.check-connect-status]
+verify_jwt = true
+
+[functions.stripe-webhook]
+verify_jwt = false
+
+[functions.update-space-rating]
+verify_jwt = false
