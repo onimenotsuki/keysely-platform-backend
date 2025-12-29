@@ -1,3 +1,4 @@
+import { logger } from '@shared/logger.ts';
 import { getTypesenseClient } from '@shared/typesenseClient.ts';
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import Typesense from 'npm:typesense';
@@ -29,17 +30,17 @@ const schema = {
 };
 
 export async function createTypesenseSchema(client: Typesense.Client) {
-  console.log('Checking if collection exists...');
+  logger.info('Checking if collection exists...');
 
   try {
     const collection = await client.collections(TYPESENSE_COLLECTION_NAME).retrieve();
-    console.log('Collection exists, attempting to update schema...');
+    logger.info('Collection exists, attempting to update schema...');
 
     // We need to cast collection to a type that includes fields
     const existingFields = (collection as { fields?: { name: string }[] }).fields || [];
 
     if (existingFields.length > 0) {
-      console.log(`Found ${existingFields.length} existing fields. Dropping them...`);
+      logger.info(`Found ${existingFields.length} existing fields. Dropping them...`);
       // Filter out 'id' field as it cannot be dropped
       const fieldsToDrop = existingFields
         .filter((field) => field.name !== 'id')
@@ -51,23 +52,23 @@ export async function createTypesenseSchema(client: Typesense.Client) {
       if (fieldsToDrop.length > 0) {
         try {
           await client.collections(TYPESENSE_COLLECTION_NAME).update({ fields: fieldsToDrop });
-          console.log('Existing fields dropped successfully.');
+          logger.info('Existing fields dropped successfully.');
         } catch (dropError) {
-          console.error('Error dropping fields:', dropError);
+          logger.error('Error dropping fields:', dropError);
           // We might want to throw here or continue depending on severity.
           // Continuing might fail the next step if fields conflict.
           throw dropError;
         }
       } else {
-        console.log('No fields to drop (only id found).');
+        logger.info('No fields to drop (only id found).');
       }
     }
 
     try {
       await client.collections(TYPESENSE_COLLECTION_NAME).update({ fields: schema?.fields });
-      console.log('Schema updated successfully with new fields.');
+      logger.info('Schema updated successfully with new fields.');
     } catch (updateError) {
-      console.error('Error adding new fields:', updateError);
+      logger.error('Error adding new fields:', updateError);
       throw updateError;
     }
   } catch (error: unknown) {
@@ -79,18 +80,20 @@ export async function createTypesenseSchema(client: Typesense.Client) {
       'httpStatus' in error &&
       (error as { httpStatus: number }).httpStatus === 404
     ) {
-      console.log('Collection not found, creating...');
+      logger.info('Collection not found, creating...');
       await client.collections().create(schema);
-      console.log('Collection created successfully.');
+      logger.info('Collection created successfully.');
     } else {
       // Other errors
-      console.error('Error checking/creating collection:', error);
+      logger.error('Error checking/creating collection:', error);
       throw error;
     }
   }
 }
 
 serve(async (_req: Request) => {
+  logger.logRequest(_req);
+
   try {
     const client = getTypesenseClient();
     await createTypesenseSchema(client);
@@ -100,7 +103,7 @@ serve(async (_req: Request) => {
       status: 200,
     });
   } catch (error) {
-    console.error('Error creating/updating schema:', error);
+    logger.error('Error creating/updating schema:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 
     return new Response(JSON.stringify({ error: errorMessage }), {

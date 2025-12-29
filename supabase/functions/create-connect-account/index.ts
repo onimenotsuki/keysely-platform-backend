@@ -1,3 +1,4 @@
+import { logger } from '@shared/logger.ts';
 import { serve } from 'https://deno.land/std@0.190.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.57.2';
 import Stripe from 'https://esm.sh/stripe@18.5.0';
@@ -8,6 +9,8 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  logger.logRequest(req);
+
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -31,7 +34,7 @@ serve(async (req) => {
       throw new Error('User not authenticated or email not available');
     }
 
-    console.log(`Creating Connect account for user: ${user.id}`);
+    logger.info(`Creating Connect account for user: ${user.id}`);
 
     // Check if user already has a Connect account
     const { data: existingAccount } = await supabaseClient
@@ -41,7 +44,7 @@ serve(async (req) => {
       .single();
 
     if (existingAccount?.stripe_account_id) {
-      console.log(`User already has Connect account: ${existingAccount.stripe_account_id}`);
+      logger.info(`User already has Connect account: ${existingAccount.stripe_account_id}`);
       return new Response(
         JSON.stringify({
           account_id: existingAccount.stripe_account_id,
@@ -81,7 +84,7 @@ serve(async (req) => {
       },
     });
 
-    console.log(`Created Stripe Connect account: ${account.id}`);
+    logger.info(`Created Stripe Connect account: ${account.id}`);
 
     // Create onboarding link
     const accountLinks = await stripe.accountLinks.create({
@@ -103,11 +106,11 @@ serve(async (req) => {
     });
 
     if (insertError) {
-      console.error('Error saving Connect account to database:', insertError);
+      logger.error('Error saving Connect account to database:', insertError);
       throw new Error('Failed to save account information');
     }
 
-    console.log(`Connect account saved to database for user: ${user.id}`);
+    logger.info(`Connect account saved to database for user: ${user.id}`);
 
     return new Response(
       JSON.stringify({
@@ -121,7 +124,7 @@ serve(async (req) => {
       },
     );
   } catch (error) {
-    console.error('Error in create-connect-account:', error);
+    logger.error('Error in create-connect-account:', error);
     const errorMessage = error instanceof Error ? error.message : String(error);
     return new Response(JSON.stringify({ error: errorMessage }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

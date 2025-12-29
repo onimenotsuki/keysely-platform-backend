@@ -4,6 +4,8 @@ import { getTypesenseClient } from '@shared/typesenseClient.ts';
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 
 serve(async (req: Request) => {
+  logger.logRequest(req);
+
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }

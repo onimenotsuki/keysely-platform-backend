@@ -1,3 +1,4 @@
+import { logger } from '@shared/logger.ts';
 import { serve } from 'https://deno.land/std@0.190.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.57.2';
 
@@ -7,6 +8,7 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  logger.logRequest(req);
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -26,7 +28,7 @@ serve(async (req) => {
       { auth: { persistSession: false } },
     );
 
-    console.log(`Updating rating for space: ${space_id}`);
+    logger.info(`Updating rating for space: ${space_id}`);
 
     // Calculate average rating and total reviews for the space
     const { data: reviews, error: reviewsError } = await supabaseClient
@@ -35,7 +37,7 @@ serve(async (req) => {
       .eq('space_id', space_id);
 
     if (reviewsError) {
-      console.error('Error fetching reviews:', reviewsError);
+      logger.error('Error fetching reviews:', reviewsError);
       throw reviewsError;
     }
 
@@ -50,7 +52,7 @@ serve(async (req) => {
       averageRating = Math.round(averageRating * 10) / 10;
     }
 
-    console.log(`Calculated rating: ${averageRating} from ${totalReviews} reviews`);
+    logger.info(`Calculated rating: ${averageRating} from ${totalReviews} reviews`);
 
     // Update space with new rating and review count
     const { error: updateError } = await supabaseClient
@@ -62,11 +64,11 @@ serve(async (req) => {
       .eq('id', space_id);
 
     if (updateError) {
-      console.error('Error updating space:', updateError);
+      logger.error('Error updating space:', updateError);
       throw updateError;
     }
 
-    console.log(
+    logger.info(
       `Successfully updated space ${space_id} with rating ${averageRating} and ${totalReviews} reviews`,
     );
 
@@ -83,7 +85,7 @@ serve(async (req) => {
       },
     );
   } catch (error) {
-    console.error('Error in update-space-rating:', error);
+    logger.error('Error in update-space-rating:', error);
     const errorMessage = error instanceof Error ? error.message : String(error);
     return new Response(JSON.stringify({ error: errorMessage }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

@@ -1,6 +1,7 @@
+import { logger } from '@shared/logger.ts';
 import { serve } from 'https://deno.land/std@0.190.0/http/server.ts';
-import Stripe from 'https://esm.sh/stripe@18.5.0';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.57.2';
+import Stripe from 'https://esm.sh/stripe@18.5.0';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -8,6 +9,8 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  logger.logRequest(req);
+
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -80,7 +83,7 @@ serve(async (req) => {
     const platformFee = Math.round(totalAmount * 0.15); // 15% platform fee
     const ownerAmount = totalAmount - platformFee;
 
-    console.log(
+    logger.info(
       `Payment amounts - Total: ${totalAmount}, Platform fee: ${platformFee}, Owner: ${ownerAmount}`,
     );
 
@@ -145,10 +148,10 @@ serve(async (req) => {
       .eq('id', booking_id);
 
     if (updateError) {
-      console.error('Error updating booking with session ID:', updateError);
+      logger.error('Error updating booking with session ID:', updateError);
     }
 
-    console.log(`Checkout session created: ${session.id}`);
+    logger.info(`Checkout session created: ${session.id}`);
 
     return new Response(
       JSON.stringify({
@@ -164,7 +167,7 @@ serve(async (req) => {
       },
     );
   } catch (error) {
-    console.error('Error in create-marketplace-payment:', error);
+    logger.error('Error in create-marketplace-payment:', error);
     const errorMessage = error instanceof Error ? error.message : String(error);
     return new Response(JSON.stringify({ error: errorMessage }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
