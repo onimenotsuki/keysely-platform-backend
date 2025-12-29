@@ -14,6 +14,27 @@ Backend services for the Keysely platform, powered by Supabase and Supabase Edge
 npm install
 ```
 
+### Running Local Services
+
+To run the full local backend environment, you must start **both** Typesense and Supabase.
+
+#### 1. Typesense
+To start the Typesense service locally, use the following command (requires Docker):
+
+```bash
+docker-compose --env-file .env.local up -d
+```
+
+#### 2. Supabase
+For full details, see the [Supabase Local Development Guide](https://supabase.com/docs/guides/local-development).
+
+Common commands:
+- Start local stack: `supabase start`
+- Stop local stack: `supabase stop`
+- Check status: `supabase status`
+
+
+
 ## 🛠 Development
 
 This project uses a strict set of tools to ensure code quality:

@@ -5,6 +5,8 @@ Keysely Platform Backend: A Supabase-based backend with Node.js tooling.
 
 ## Setup Commands
 - Install dependencies: `npm install`
+- Start Typesense: `docker-compose --env-file .env.local up -d`
+- Start Supabase: `supabase start`
 - Lint code: `npm run lint`
 - Format code: `npm run format`
 

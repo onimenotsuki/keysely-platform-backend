@@ -64,7 +64,7 @@ export async function createTypesenseSchema(client: Typesense.Client) {
     }
 
     try {
-      await client.collections(TYPESENSE_COLLECTION_NAME).update({ fields: schema.fields });
+      await client.collections(TYPESENSE_COLLECTION_NAME).update({ fields: schema?.fields });
       console.log('Schema updated successfully with new fields.');
     } catch (updateError) {
       console.error('Error adding new fields:', updateError);

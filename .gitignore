@@ -27,3 +27,6 @@ coverage/
 supabase/.branches
 supabase/.temp
 supabase/functions/**/deno.lock
+
+# Typesense
+typesense-data
