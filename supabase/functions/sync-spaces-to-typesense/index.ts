@@ -1,4 +1,5 @@
 import { corsHeaders } from '@shared/cors.ts';
+import { logger } from '@shared/logger.ts';
 import { getTypesenseClient } from '@shared/typesenseClient.ts';
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import Typesense from 'npm:typesense';
@@ -59,7 +60,7 @@ async function indexSpace(space: SupabaseSpace) {
 
   // If space is not active, ensure it is removed from Typesense
   if (!space.is_active) {
-    console.log(`Space ${space.id} is inactive, removing from Typesense if exists...`);
+    logger.info(`Space ${space.id} is inactive, removing from Typesense if exists...`);
 
     return await deleteSpace(space.id);
   }
@@ -106,6 +107,8 @@ async function deleteSpace(spaceId: string) {
 }
 
 serve(async (req: Request) => {
+  logger.logRequest(req);
+
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }
@@ -116,7 +119,7 @@ serve(async (req: Request) => {
     const TYPESENSE_API_KEY = Deno.env.get('TYPESENSE_API_KEY');
 
     if (!TYPESENSE_HOST || !TYPESENSE_API_KEY) {
-      console.log('Typesense not configured, skipping sync');
+      logger.info('Typesense not configured, skipping sync');
       return new Response(JSON.stringify({ message: 'Typesense not configured' }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
@@ -126,10 +129,10 @@ serve(async (req: Request) => {
     let payload;
     try {
       const bodyText = await req.text();
-      console.log('Raw request body:', bodyText);
+      logger.info('Raw request body:', bodyText);
 
       if (!bodyText) {
-        console.warn('Received empty request body');
+        logger.error('Received empty request body');
         return new Response(JSON.stringify({ error: 'Empty request body' }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           status: 400,
@@ -137,10 +140,10 @@ serve(async (req: Request) => {
       }
 
       payload = JSON.parse(bodyText);
-      console.log('Parsed payload:', JSON.stringify(payload, null, 2));
+      logger.info('Parsed payload:', JSON.stringify(payload, null, 2));
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : String(e);
-      console.error('Error parsing JSON:', e);
+      logger.error('Error parsing JSON:', e);
       return new Response(JSON.stringify({ error: 'Invalid JSON body', details: errorMessage }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 400,
@@ -161,10 +164,10 @@ serve(async (req: Request) => {
     // Handle different event types
     if (type === 'INSERT' || type === 'UPDATE') {
       await indexSpace(record as SupabaseSpace);
-      console.log(`Successfully processed space ${record.id}`);
+      logger.info(`Successfully processed space ${record.id}`);
     } else if (type === 'DELETE') {
       await deleteSpace(old_record.id);
-      console.log(`Successfully deleted space ${old_record.id} from Typesense`);
+      logger.info(`Successfully deleted space ${old_record.id} from Typesense`);
     }
 
     return new Response(JSON.stringify({ success: true }), {
@@ -172,7 +175,7 @@ serve(async (req: Request) => {
       status: 200,
     });
   } catch (error) {
-    console.error('Error syncing to Typesense:', error);
+    logger.error('Error syncing to Typesense:', error);
     return new Response(
       JSON.stringify({ error: error instanceof Error ? error.message : String(error) }),
       {

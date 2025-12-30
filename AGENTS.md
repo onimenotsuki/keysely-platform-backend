@@ -5,6 +5,8 @@ Keysely Platform Backend: A Supabase-based backend with Node.js tooling.
 
 ## Setup Commands
 - Install dependencies: `npm install`
+- Start Typesense: `docker-compose --env-file .env.local up -d`
+- Start Supabase: `supabase start`
 - Lint code: `npm run lint`
 - Format code: `npm run format`
 
@@ -24,7 +26,8 @@ Keysely Platform Backend: A Supabase-based backend with Node.js tooling.
 ## Key Files
 - `package.json`: Scripts and dev dependencies.
 - `.eslintrc.json`: Linting rules (ignores `supabase/functions`).
-- `supabase/config.toml`: Supabase project configuration.
+- `supabase/config.toml`: Supabase project configuration (includes email template config).
+- `supabase/templates/`: HTML templates for auth emails.
 
 ## Maintenance
 > **CRITICAL**: Update this file and `.agent/rules/project-context.md` whenever significant changes are made to the project architecture, tech stack, or coding standards.

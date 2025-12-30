@@ -1,3 +1,4 @@
+import { logger } from '@shared/logger.ts';
 import { serve } from 'https://deno.land/std@0.190.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.57.2';
 import Stripe from 'https://esm.sh/stripe@18.5.0';
@@ -8,6 +9,8 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  logger.logRequest(req);
+
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -17,7 +20,7 @@ serve(async (req) => {
     // Create Supabase client
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
       { auth: { persistSession: false } },
     );
 
@@ -31,7 +34,7 @@ serve(async (req) => {
       throw new Error('User not authenticated or email not available');
     }
 
-    console.log(`Checking Connect status for user: ${user.id}`);
+    logger.info(`Checking Connect status for user: ${user.id}`);
 
     // Get user's Connect account from database
     const { data: connectAccount, error: connectError } = await supabaseClient
@@ -61,7 +64,7 @@ serve(async (req) => {
 
     const account = await stripe.accounts.retrieve(connectAccount.stripe_account_id);
 
-    console.log(
+    logger.info(
       `Stripe account status - ID: ${account.id}, Enabled: ${account.charges_enabled}, Details: ${account.details_submitted}`,
     );
 
@@ -77,7 +80,7 @@ serve(async (req) => {
       .eq('user_id', user.id);
 
     if (updateError) {
-      console.error('Error updating Connect account status:', updateError);
+      logger.error('Error updating Connect account status:', updateError);
     }
 
     const needsOnboarding = !account.details_submitted || !account.charges_enabled;
@@ -118,7 +121,7 @@ serve(async (req) => {
       },
     );
   } catch (error) {
-    console.error('Error in check-connect-status:', error);
+    logger.error('Error in check-connect-status:', error);
     const errorMessage = error instanceof Error ? error.message : String(error);
     return new Response(JSON.stringify({ error: errorMessage }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

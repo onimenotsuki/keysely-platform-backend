@@ -1,6 +1,6 @@
 # For detailed configuration reference documentation, visit:
 # https://supabase.com/docs/guides/local-development/cli/config
-project_id = "keysely-platform-backend"
+project_id = "env(SUPABASE_PROJECT_ID)"
 
 [functions.create-connect-account]
 verify_jwt = true
@@ -16,3 +16,25 @@ verify_jwt = false
 
 [functions.update-space-rating]
 verify_jwt = false
+
+[auth.email.smtp]
+enabled = true
+host = "smtp-relay.brevo.com"
+port = 587
+user = "98f3ac001@smtp-brevo.com"
+pass = "env(BREVO_SMTP_PASS)"
+sender_name = "Keysely"
+admin_email = "noreply@keysely.com"
+
+[auth.email.template.magic_link]
+subject = "Your confirmation code"
+content_path = "./supabase/templates/magic-link.html"
+
+[auth.email.template.email_change]
+subject = "Confirm your email change"
+content_path = "./supabase/templates/confirm-email-change.html"
+
+[auth]
+site_url = "env(SITE_URL)"
+additional_redirect_urls = ["http://localhost:3000/**", "http://localhost:8080/**"]
+

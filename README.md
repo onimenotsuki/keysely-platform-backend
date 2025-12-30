@@ -14,6 +14,38 @@ Backend services for the Keysely platform, powered by Supabase and Supabase Edge
 npm install
 ```
 
+### Running Local Services
+
+To run the full local backend environment, you must start **both** Typesense and Supabase.
+
+#### 1. Typesense
+To start the Typesense service locally, use the following command (requires Docker):
+
+```bash
+docker-compose --env-file .env.local up -d
+```
+
+#### 2. Supabase
+For full details, see the [Supabase Local Development Guide](https://supabase.com/docs/guides/local-development).
+
+Common commands:
+- Start local stack: `supabase start`
+- Stop local stack: `supabase stop`
+- Check status: `supabase status`
+
+
+
+
+## 📚 Documentation
+- [OTP & Custom Auth Implementation Guide](./docs/OTP_IMPLEMENTATION.md): Details on the custom email handler and session validation flow.
+
+### Email Templates
+Custom email templates are located in `supabase/templates/` and configured in `supabase/config.toml`.
+- **Magic Link**: `supabase/templates/magic-link.html`
+- **Confirm Email Change**: `supabase/templates/confirm-email-change.html`
+
+Ensure the `SITE_URL` environment variable is set in your CI/CD pipeline for correct link generation.
+
 ## 🛠 Development
 
 This project uses a strict set of tools to ensure code quality:

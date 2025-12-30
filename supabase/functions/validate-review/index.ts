@@ -1,3 +1,4 @@
+import { logger } from '@shared/logger.ts';
 import { serve } from 'https://deno.land/std@0.190.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.57.2';
 
@@ -13,6 +14,7 @@ interface ValidateReviewRequest {
 }
 
 serve(async (req) => {
+  logger.logRequest(req);
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -37,11 +39,11 @@ serve(async (req) => {
     // Create Supabase client using service role for full access
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
       { auth: { persistSession: false } },
     );
 
-    console.log(`Validating review for user ${user_id}, space ${space_id}, booking ${booking_id}`);
+    logger.info(`Validating review for user ${user_id}, space ${space_id}, booking ${booking_id}`);
 
     // Get the specific booking to validate
     const { data: booking, error: bookingError } = await supabaseClient
@@ -192,7 +194,7 @@ serve(async (req) => {
       },
     );
   } catch (error) {
-    console.error('Error in validate-review:', error);
+    logger.error('Error in validate-review:', error);
     const errorMessage = error instanceof Error ? error.message : String(error);
     return new Response(
       JSON.stringify({

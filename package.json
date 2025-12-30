@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "deno test --allow-all supabase/functions/tests/*.ts",
     "lint": "eslint . --ext .ts,.js --no-error-on-unmatched-pattern",
     "format": "prettier --write .",
     "prepare": "husky",

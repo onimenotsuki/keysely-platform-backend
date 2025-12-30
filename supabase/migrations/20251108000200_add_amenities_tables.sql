@@ -1,7 +1,7 @@
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
 
 CREATE TABLE IF NOT EXISTS public.amenities (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   slug text NOT NULL UNIQUE,
   name text NOT NULL,
   description text,
@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS public.amenities (
 );
 
 CREATE TABLE IF NOT EXISTS public.space_amenities (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   space_id uuid NOT NULL REFERENCES public.spaces(id) ON DELETE CASCADE,
   amenity_id uuid NOT NULL REFERENCES public.amenities(id) ON DELETE CASCADE,
   created_at timestamptz DEFAULT now(),
@@ -22,7 +22,7 @@ CREATE INDEX IF NOT EXISTS idx_space_amenities_space_id ON public.space_amenitie
 CREATE INDEX IF NOT EXISTS idx_space_amenities_amenity_id ON public.space_amenities(amenity_id);
 
 CREATE TABLE IF NOT EXISTS public.space_characteristics (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   space_id uuid NOT NULL REFERENCES public.spaces(id) ON DELETE CASCADE,
   title text NOT NULL,
   description text,

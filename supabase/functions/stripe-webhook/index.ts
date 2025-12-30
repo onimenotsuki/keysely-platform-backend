@@ -1,3 +1,4 @@
+import { logger } from '@shared/logger.ts';
 import { serve } from 'https://deno.land/std@0.190.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.57.2';
 import Stripe from 'https://esm.sh/stripe@18.5.0';
@@ -9,6 +10,8 @@ const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') || '', {
 const webhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET');
 
 serve(async (req) => {
+  logger.logRequest(req);
+
   if (req.method !== 'POST') {
     return new Response('Method not allowed', { status: 405 });
   }
@@ -18,7 +21,7 @@ serve(async (req) => {
     const signature = req.headers.get('stripe-signature');
 
     if (!signature || !webhookSecret) {
-      console.error('Missing signature or webhook secret');
+      logger.error('Missing signature or webhook secret');
       return new Response('Missing signature or webhook secret', {
         status: 400,
       });
@@ -29,13 +32,13 @@ serve(async (req) => {
     try {
       event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
     } catch (error) {
-      console.error('Webhook signature verification failed:', error);
+      logger.error('Webhook signature verification failed:', error);
       return new Response('Webhook signature verification failed', {
         status: 400,
       });
     }
 
-    console.log(`Received webhook event: ${event.type}`);
+    logger.info(`Received webhook event: ${event.type}`);
 
     // Create Supabase client
     const supabaseClient = createClient(
@@ -49,7 +52,7 @@ serve(async (req) => {
         const session = event.data.object as Stripe.Checkout.Session;
 
         if (session.metadata?.booking_id) {
-          console.log(`Payment completed for booking: ${session.metadata.booking_id}`);
+          logger.info(`Payment completed for booking: ${session.metadata.booking_id}`);
 
           // Update booking status to paid
           const { error } = await supabaseClient
@@ -62,9 +65,9 @@ serve(async (req) => {
             .eq('id', session.metadata.booking_id);
 
           if (error) {
-            console.error('Error updating booking status:', error);
+            logger.error('Error updating booking status:', error);
           } else {
-            console.log(`Booking ${session.metadata.booking_id} marked as paid and confirmed`);
+            logger.info(`Booking ${session.metadata.booking_id} marked as paid and confirmed`);
           }
         }
         break;
@@ -74,7 +77,7 @@ serve(async (req) => {
         const paymentIntent = event.data.object as Stripe.PaymentIntent;
 
         if (paymentIntent.metadata?.booking_id) {
-          console.log(`Payment failed for booking: ${paymentIntent.metadata.booking_id}`);
+          logger.info(`Payment failed for booking: ${paymentIntent.metadata.booking_id}`);
 
           // Update booking status to failed
           const { error } = await supabaseClient
@@ -86,9 +89,9 @@ serve(async (req) => {
             .eq('id', paymentIntent.metadata.booking_id);
 
           if (error) {
-            console.error('Error updating booking status:', error);
+            logger.error('Error updating booking status:', error);
           } else {
-            console.log(`Booking ${paymentIntent.metadata.booking_id} marked as failed`);
+            logger.info(`Booking ${paymentIntent.metadata.booking_id} marked as failed`);
           }
         }
         break;
@@ -97,7 +100,7 @@ serve(async (req) => {
       case 'account.updated': {
         const account = event.data.object as Stripe.Account;
 
-        console.log(`Connect account updated: ${account.id}`);
+        logger.info(`Connect account updated: ${account.id}`);
 
         // Update Connect account status in database
         const { error } = await supabaseClient
@@ -111,15 +114,15 @@ serve(async (req) => {
           .eq('stripe_account_id', account.id);
 
         if (error) {
-          console.error('Error updating Connect account status:', error);
+          logger.error('Error updating Connect account status:', error);
         } else {
-          console.log(`Connect account ${account.id} status updated`);
+          logger.info(`Connect account ${account.id} status updated`);
         }
         break;
       }
 
       default:
-        console.log(`Unhandled event type: ${event.type}`);
+        logger.info(`Unhandled event type: ${event.type}`);
     }
 
     return new Response(JSON.stringify({ received: true }), {
@@ -127,7 +130,7 @@ serve(async (req) => {
       headers: { 'Content-Type': 'application/json' },
     });
   } catch (error) {
-    console.error('Webhook error:', error);
+    logger.error('Webhook error:', error);
     const errorMessage = error instanceof Error ? error.message : String(error);
     return new Response(JSON.stringify({ error: errorMessage }), {
       status: 500,

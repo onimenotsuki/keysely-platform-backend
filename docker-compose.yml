@@ -1,0 +1,20 @@
+name: keysely-typesense
+services:
+  typesense:
+    image: typesense/typesense:26.0
+    restart: on-failure
+    ports:
+      - "${TYPESENSE_PORT}:8108"
+    volumes:
+      - ${TYPESENSE_DATA_DIR}:/data
+    environment:
+      - TYPESENSE_API_KEY=${TYPESENSE_API_KEY}
+      - TYPESENSE_DATA_DIR=${TYPESENSE_DATA_DIR}
+      - TYPESENSE_PORT=${TYPESENSE_PORT}
+    command: '--data-dir /data --api-key=${TYPESENSE_API_KEY} --enable-cors'
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${TYPESENSE_PORT}/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  
