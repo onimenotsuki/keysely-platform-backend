@@ -31,6 +31,10 @@ jobs:
             STRIPE_WEBHOOK_SECRET="${{ secrets.STRIPE_WEBHOOK_SECRET }}" \
             BREVO_API_KEY="${{ secrets.BREVO_API_KEY }}" \
             BREVO_SMTP_PASS="${{ secrets.BREVO_SMTP_PASS }}"
-      - run: supabase db push
-      - run: supabase functions deploy
+      - name: Pushing database
+        run: supabase db push
+      - name: Deploying functions
+        run: supabase functions deploy
+      - name: Updating config
+        run: supabase config push
 
