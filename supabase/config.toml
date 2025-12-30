@@ -1,6 +1,6 @@
 # For detailed configuration reference documentation, visit:
 # https://supabase.com/docs/guides/local-development/cli/config
-project_id = "keysely-platform-backend"
+project_id = "env(SUPABASE_PROJECT_ID)"
 
 [functions.create-connect-account]
 verify_jwt = true
@@ -35,6 +35,6 @@ subject = "Confirm your email change"
 content_path = "./supabase/templates/confirm-email-change.html"
 
 [auth]
-site_url = "http://localhost:8080"
-additional_redirect_urls = ["http://localhost:3000/**"]
+site_url = "env(SITE_URL)"
+additional_redirect_urls = ["http://localhost:3000/**", "http://localhost:8080/**"]
 
