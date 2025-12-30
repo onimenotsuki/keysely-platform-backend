@@ -1,0 +1,141 @@
+<!doctype html>
+<html>
+  <head>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Confirm Email Change</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f5;
+        font-family:
+          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif,
+          'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+      }
+      .container {
+        max-width: 600px;
+        margin: 40px auto;
+        background-color: #ffffff;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow:
+          0 4px 6px -1px rgba(0, 0, 0, 0.1),
+          0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      }
+      .header {
+        padding: 32px;
+        text-align: center;
+        background-color: #ffffff;
+        border-bottom: 1px solid #f0f0f0;
+      }
+      .logo {
+        height: 48px;
+        width: auto;
+      }
+      .content {
+        padding: 40px 32px;
+        color: #19283d; /* Navy */
+        text-align: center;
+      }
+      h1 {
+        margin: 0 0 24px;
+        font-size: 24px;
+        font-weight: 700;
+        color: #19283d; /* Navy */
+      }
+      p {
+        margin: 0 0 24px;
+        font-size: 16px;
+        line-height: 24px;
+        color: #4b5563;
+      }
+      .otp-code {
+        margin: 32px 0;
+        padding: 24px;
+        background-color: #f8fafc;
+        border: 2px dashed #c4b3a5; /* Beige */
+        border-radius: 8px;
+      }
+      .otp-value {
+        font-family: monospace;
+        font-size: 32px;
+        font-weight: 700;
+        letter-spacing: 8px;
+        color: #19283d; /* Navy */
+      }
+      .button {
+        display: inline-block;
+        padding: 14px 32px;
+        background-color: #3b82f6; /* Blue */
+        color: #ffffff;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 16px;
+        border-radius: 8px;
+        transition: background-color 0.2s;
+      }
+      .button:hover {
+        background-color: #2563eb;
+      }
+      .footer {
+        padding: 32px;
+        background-color: #f8fafc;
+        text-align: center;
+        font-size: 14px;
+        color: #64748b;
+      }
+      .footer a {
+        color: #8b8bdd; /* Lavender */
+        text-decoration: none;
+      }
+      .secondary-text {
+        font-size: 14px;
+        color: #94a3b8;
+        margin-top: 24px;
+        margin-left: 24px;
+      }
+      a.link {
+        color: #3b82f6; /* Blue */
+        text-decoration: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <!-- REPLACE WITH YOUR PUBLIC LOGO URL -->
+        <img
+          src="https://images.ctfassets.net/4gterhe7x0z2/DE78DgRx7yDmqkA5JChSY/b111b48db73218a7b0008dee39a55899/logo.png"
+          alt="Keysely Logo"
+          class="logo"
+        />
+      </div>
+      <div class="content">
+        <h1>Confirm Email Change</h1>
+        <p>You requested to change your email address.</p>
+
+        <p>Your OTP code to confirm this change is:</p>
+
+        <div class="otp-code">
+          <div class="otp-value">{{ .Token }}</div>
+        </div>
+
+        <p>Or you can confirm by clicking the button below:</p>
+
+        <a href="{{ .ConfirmationURL }}" class="button">Confirm Email Change</a>
+
+        <p class="secondary-text">
+          If the button above doesn't work, copy and paste this link into your browser:<br />
+          <a href="{{ .ConfirmationURL }}" class="link">{{ .ConfirmationURL }}</a>
+        </p>
+      </div>
+      <div class="secondary-text">
+        <p>If you didn't request this email change, you can safely ignore this email.</p>
+      </div>
+      <div class="footer">
+        <p>&copy; 2026 Keysely. All rights reserved.</p>
+      </div>
+    </div>
+  </body>
+</html>
