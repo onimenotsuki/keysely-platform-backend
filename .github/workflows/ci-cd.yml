@@ -28,7 +28,9 @@ jobs:
             TYPESENSE_PORT="${{ secrets.TYPESENSE_PORT }}" \
             TYPESENSE_PROTOCOL="${{ secrets.TYPESENSE_PROTOCOL }}" \
             STRIPE_SECRET_KEY="${{ secrets.STRIPE_SECRET_KEY }}" \
-            STRIPE_WEBHOOK_SECRET="${{ secrets.STRIPE_WEBHOOK_SECRET }}"
+            STRIPE_WEBHOOK_SECRET="${{ secrets.STRIPE_WEBHOOK_SECRET }}" \
+            BREVO_API_KEY="${{ secrets.BREVO_API_KEY }}" \
+            BREVO_SMTP_PASS="${{ secrets.BREVO_SMTP_PASS }}"
       - run: supabase db push
       - run: supabase functions deploy
 

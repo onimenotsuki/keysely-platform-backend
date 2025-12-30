@@ -16,3 +16,13 @@ verify_jwt = false
 
 [functions.update-space-rating]
 verify_jwt = false
+
+[auth.email.smtp]
+enabled = true
+host = "smtp-relay.brevo.com"
+port = 587
+user = "98f3ac001@smtp-brevo.com"
+pass = "env(BREVO_SMTP_PASS)"
+sender_name = "Keysely"
+admin_email = "noreply@keysely.com"
+

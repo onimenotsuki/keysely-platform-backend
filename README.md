@@ -35,6 +35,10 @@ Common commands:
 
 
 
+
+## 📚 Documentation
+- [OTP & Custom Auth Implementation Guide](./docs/OTP_IMPLEMENTATION.md): Details on the custom email handler and session validation flow.
+
 ## 🛠 Development
 
 This project uses a strict set of tools to ensure code quality:

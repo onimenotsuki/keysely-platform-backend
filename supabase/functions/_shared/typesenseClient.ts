@@ -1,4 +1,4 @@
-import Typesense from 'npm:typesense@latest';
+import Typesense from 'typesense';
 
 export function getTypesenseClient() {
   const TYPESENSE_HOST = Deno.env.get('TYPESENSE_HOST') as string;
