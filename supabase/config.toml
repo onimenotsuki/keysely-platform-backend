@@ -26,3 +26,6 @@ pass = "env(BREVO_SMTP_PASS)"
 sender_name = "Keysely"
 admin_email = "noreply@keysely.com"
 
+[auth]
+site_url = "http://localhost:8080"
+additional_redirect_urls = ["http://localhost:3000/**"]
