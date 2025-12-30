@@ -24,7 +24,7 @@ serve(async (req) => {
     // Create Supabase client using service role for full access
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
       { auth: { persistSession: false } },
     );
 

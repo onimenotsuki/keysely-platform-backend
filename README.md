@@ -35,6 +35,17 @@ Common commands:
 
 
 
+
+## 📚 Documentation
+- [OTP & Custom Auth Implementation Guide](./docs/OTP_IMPLEMENTATION.md): Details on the custom email handler and session validation flow.
+
+### Email Templates
+Custom email templates are located in `supabase/templates/` and configured in `supabase/config.toml`.
+- **Magic Link**: `supabase/templates/magic-link.html`
+- **Confirm Email Change**: `supabase/templates/confirm-email-change.html`
+
+Ensure the `SITE_URL` environment variable is set in your CI/CD pipeline for correct link generation.
+
 ## 🛠 Development
 
 This project uses a strict set of tools to ensure code quality:

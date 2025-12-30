@@ -1,6 +1,7 @@
 {
   "imports": {
     "@shared/": "./_shared/",
-    "typesense": "npm:typesense@latest"
+    "typesense": "npm:typesense@latest",
+    "brevo": "npm:@getbrevo/brevo@^2.2.0"
   }
 }
