@@ -42,6 +42,7 @@ serve(async (req) => {
 
     if (error) {
       logger.error('Error sending email', { error });
+      await captureAndFlush(error);
       return new Response(JSON.stringify({ error: 'Failed to send email', details: error }), {
         status: 502,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
