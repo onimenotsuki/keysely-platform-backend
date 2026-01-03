@@ -8,6 +8,7 @@ export function initSentry() {
   Sentry.init({
     dsn: Deno.env.get('SENTRY_DSN') ?? '',
     sendDefaultPii: true,
+    tracesSampleRate: 1.0,
   });
 }
 
