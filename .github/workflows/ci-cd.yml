@@ -25,7 +25,6 @@ jobs:
       - run: |
           supabase secrets set \
             SITE_URL="${{ env.SITE_URL }}" \
-            SUPABASE_PROJECT_ID="${{ env.SUPABASE_PROJECT_ID }}" \
             TYPESENSE_HOST="${{ secrets.TYPESENSE_HOST }}" \
             TYPESENSE_API_KEY="${{ secrets.TYPESENSE_API_KEY }}" \
             TYPESENSE_PORT="${{ secrets.TYPESENSE_PORT }}" \
@@ -33,7 +32,8 @@ jobs:
             STRIPE_SECRET_KEY="${{ secrets.STRIPE_SECRET_KEY }}" \
             STRIPE_WEBHOOK_SECRET="${{ secrets.STRIPE_WEBHOOK_SECRET }}" \
             BREVO_API_KEY="${{ secrets.BREVO_API_KEY }}" \
-            BREVO_SMTP_PASS="${{ secrets.BREVO_SMTP_PASS }}"
+            BREVO_SMTP_PASS="${{ secrets.BREVO_SMTP_PASS }}" \
+            SENTRY_DSN="${{ vars.SENTRY_DSN }}"
       - name: Pushing database
         run: supabase db push
       - name: Deploying functions

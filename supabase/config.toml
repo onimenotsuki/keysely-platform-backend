@@ -1,6 +1,6 @@
 # For detailed configuration reference documentation, visit:
 # https://supabase.com/docs/guides/local-development/cli/config
-project_id = "env(SUPABASE_PROJECT_ID)"
+project_id = "iyuubwsrxnmqwpyvxtgh"
 
 [functions.create-connect-account]
 verify_jwt = true
