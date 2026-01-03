@@ -14,6 +14,12 @@ verify_jwt = true
 [functions.stripe-webhook]
 verify_jwt = false
 
+[functions.auth-email-handler]
+verify_jwt = false
+
+[functions.test-typesense-connection]
+verify_jwt = false
+
 [functions.update-space-rating]
 verify_jwt = false
 
@@ -36,5 +42,5 @@ content_path = "./supabase/templates/confirm-email-change.html"
 
 [auth]
 site_url = "env(SITE_URL)"
-additional_redirect_urls = ["http://localhost:3000/**", "http://localhost:8080/**"]
+additional_redirect_urls = ["http://localhost:3000/**", "http://localhost:8080/**", "https://test.keysely.com/**"]
 
