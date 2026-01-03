@@ -1,4 +1,5 @@
 import { logger } from '@shared/logger.ts';
+import { captureAndFlush, initSentry } from '@shared/sentry.ts';
 import { serve } from 'https://deno.land/std@0.190.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.57.2';
 import Stripe from 'https://esm.sh/stripe@18.5.0';
@@ -7,6 +8,8 @@ const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+initSentry();
 
 serve(async (req) => {
   logger.logRequest(req);
@@ -168,6 +171,7 @@ serve(async (req) => {
     );
   } catch (error) {
     logger.error('Error in create-marketplace-payment:', error);
+    await captureAndFlush(error);
     const errorMessage = error instanceof Error ? error.message : String(error);
     return new Response(JSON.stringify({ error: errorMessage }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

@@ -1,8 +1,11 @@
 import { corsHeaders } from '@shared/cors.ts';
 import { logger } from '@shared/logger.ts';
+import { initSentry } from '@shared/sentry.ts';
 import { getTypesenseClient } from '@shared/typesenseClient.ts';
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import Typesense from 'npm:typesense';
+
+initSentry();
 
 const TYPESENSE_COLLECTION_NAME = 'spaces';
 
@@ -176,6 +179,7 @@ serve(async (req: Request) => {
     });
   } catch (error) {
     logger.error('Error syncing to Typesense:', error);
+    await captureAndFlush(error);
     return new Response(
       JSON.stringify({ error: error instanceof Error ? error.message : String(error) }),
       {

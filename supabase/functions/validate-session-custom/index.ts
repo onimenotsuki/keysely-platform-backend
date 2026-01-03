@@ -1,7 +1,10 @@
 import { corsHeaders } from '@shared/cors.ts';
 import { logger } from '@shared/logger.ts';
+import { captureAndFlush, initSentry } from '@shared/sentry.ts';
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.57.2';
+
+initSentry();
 
 serve(async (req) => {
   logger.logRequest(req);
@@ -46,6 +49,7 @@ serve(async (req) => {
     });
   } catch (error) {
     logger.error('Unexpected error in validate-session-custom', { error });
+    await captureAndFlush(error);
     return new Response(JSON.stringify({ error: error.message }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 500,

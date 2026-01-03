@@ -1,7 +1,10 @@
 import { logger } from '@shared/logger.ts';
+import { captureAndFlush, initSentry } from '@shared/sentry.ts';
 import { getTypesenseClient } from '@shared/typesenseClient.ts';
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import Typesense from 'npm:typesense';
+
+initSentry();
 
 const TYPESENSE_COLLECTION_NAME = 'spaces';
 
@@ -104,6 +107,7 @@ serve(async (_req: Request) => {
     });
   } catch (error) {
     logger.error('Error creating/updating schema:', error);
+    await captureAndFlush(error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 
     return new Response(JSON.stringify({ error: errorMessage }), {

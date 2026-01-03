@@ -1,7 +1,7 @@
 import { corsHeaders } from '@shared/cors.ts';
 import { logger } from '@shared/logger.ts';
+import { captureAndFlush, initSentry } from '@shared/sentry.ts';
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
-import * as Sentry from 'https://deno.land/x/sentry/index.mjs';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.57.2';
 
 interface HookPayload {
@@ -13,10 +13,7 @@ interface HookPayload {
   };
 }
 
-Sentry.init({
-  dsn: Deno.env.get('SENTRY_DSN') ?? '',
-  sendDefaultPii: true,
-});
+initSentry();
 
 const supabaseClient = createClient(
   Deno.env.get('SUPABASE_URL') ?? '',
@@ -58,9 +55,7 @@ serve(async (req) => {
   } catch (error: unknown) {
     logger.error('Unexpected error in auth-email-handler', { error });
 
-    Sentry.captureException(error);
-    // Flush Sentry before the running process closes
-    await Sentry.flush(2000);
+    await captureAndFlush(error);
 
     return new Response(JSON.stringify({ error: 'Failed to send email', details: error }), {
       status: 502,
