@@ -15,16 +15,16 @@ verify_jwt = true
 verify_jwt = false
 
 [functions.validate-session-custom]
-verify_jwt = false
-
-[functions.auth-email-handler]
-verify_jwt = false
-
-[functions.test-typesense-connection]
 verify_jwt = true
 
-[functions.update-space-rating]
+[functions.auth-email-handler]
+verify_jwt = true
+
+[functions.test-typesense-connection]
 verify_jwt = false
+
+[functions.update-space-rating]
+verify_jwt = true
 
 [auth.email.smtp]
 enabled = true
