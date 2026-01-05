@@ -1,4 +1,4 @@
-import * as Sentry from 'https://deno.land/x/sentry/index.mjs';
+import * as Sentry from 'npm:@sentry/deno';
 
 /**
  * Initialize Sentry for edge function error tracking
