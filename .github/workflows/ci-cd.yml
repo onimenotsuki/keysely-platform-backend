@@ -36,7 +36,7 @@ jobs:
             BREVO_SMTP_PASS="${{ secrets.BREVO_SMTP_PASS }}"
       - name: Pushing database
         run: supabase db push
-      - name: Deploying functions
-        run: supabase functions deploy
-      - name: Updating config
-        run: supabase config push
+      # - name: Deploying functions
+      #   run: supabase functions deploy
+      # - name: Updating config
+      #   run: supabase config push
