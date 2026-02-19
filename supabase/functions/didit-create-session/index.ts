@@ -274,6 +274,7 @@ serve(async (req) => {
     const session = data as DiditSessionResponse;
     if (!session?.session_id) {
       logger.error('Didit response missing session_id', data);
+
       return new Response(
         JSON.stringify({ error: 'Invalid Didit session response (missing session_id)' }),
         { status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
@@ -318,13 +319,21 @@ serve(async (req) => {
 
       if (dbError) {
         logger.error('Failed to persist session to database', dbError);
-        // Continue even if DB write fails - session was created in Didit
+
+        return new Response(JSON.stringify({ error: 'Failed to persist session to database' }), {
+          status: 502,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
       } else {
         logger.info(`Session ${session.session_id} saved to database`);
       }
     } catch (dbErr) {
       logger.error('Error saving session to database', dbErr);
-      // Continue even if DB write fails - session was created in Didit
+
+      return new Response(JSON.stringify({ error: 'Error saving session to database' }), {
+        status: 502,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     return new Response(JSON.stringify(session), {
