@@ -5,10 +5,24 @@
  */
 
 import { serve } from 'https://deno.land/std@0.190.0/http/server.ts';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.57.2';
 import { corsHeaders } from '../_shared/cors.ts';
 import { logger } from '../_shared/logger.ts';
 
 const DIDIT_BASE = 'https://verification.didit.me/v3';
+
+/**
+ * Validate ISO 3166-1 alpha-3 country code (3 uppercase letters).
+ * Returns the validated code or null if invalid.
+ */
+function validateCountryCode(code: string | undefined): string | null {
+  if (!code) return null;
+  // ISO 3166-1 alpha-3 codes are exactly 3 uppercase letters
+  if (typeof code === 'string' && /^[A-Z]{3}$/.test(code.trim().toUpperCase())) {
+    return code.trim().toUpperCase();
+  }
+  return null;
+}
 
 /** Request body for creating a session (matches Didit API). */
 interface CreateSessionBody {
@@ -266,6 +280,52 @@ serve(async (req) => {
       );
     }
     logger.info(`Didit session created: ${session.session_id}`);
+
+    // Save session to local database
+    try {
+      const supabase = createClient(
+        Deno.env.get('SUPABASE_URL') ?? '',
+        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+        { auth: { persistSession: false } },
+      );
+
+      // Parse metadata if it's a string
+      let parsedMetadata = {};
+      if (body.metadata) {
+        try {
+          parsedMetadata =
+            typeof body.metadata === 'string' ? JSON.parse(body.metadata) : body.metadata;
+        } catch {
+          parsedMetadata = {};
+        }
+      }
+
+      const { error: dbError } = await supabase.from('didit_sessions').upsert(
+        {
+          session_id: session.session_id,
+          status: session.status || 'Not Started',
+          webhook_type: 'status.updated' as const, // Initial creation
+          vendor_data: session.vendor_data || body.vendor_data || null,
+          workflow_id: session.workflow_id || workflow_id || null,
+          metadata: parsedMetadata,
+          decision: null,
+          updated_at: new Date().toISOString(),
+        },
+        {
+          onConflict: 'session_id',
+        },
+      );
+
+      if (dbError) {
+        logger.error('Failed to persist session to database', dbError);
+        // Continue even if DB write fails - session was created in Didit
+      } else {
+        logger.info(`Session ${session.session_id} saved to database`);
+      }
+    } catch (dbErr) {
+      logger.error('Error saving session to database', dbErr);
+      // Continue even if DB write fails - session was created in Didit
+    }
 
     return new Response(JSON.stringify(session), {
       status: 200,

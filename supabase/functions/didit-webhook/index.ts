@@ -2,6 +2,9 @@
  * Didit Webhook handler – receives verification session events from Didit.
  * Verifies HMAC signature (X-Signature-V2 or X-Signature-Simple) then processes the event.
  * Configure your webhook URL in Didit Console → API & Webhooks.
+ *
+ * Also handles GET requests as fallback when Didit redirects the browser
+ * with verificationSessionId and status query params (for immediate compatibility).
  */
 
 import { serve } from 'https://deno.land/std@0.190.0/http/server.ts';
@@ -200,6 +203,73 @@ async function handleDiditEvent(payload: DiditWebhookPayload): Promise<void> {
 
 serve(async (req) => {
   logger.logRequest(req);
+
+  // Handle GET requests from browser redirects (fallback for immediate compatibility)
+  if (req.method === 'GET') {
+    const url = new URL(req.url);
+    const verificationSessionId = url.searchParams.get('verificationSessionId');
+    const status = url.searchParams.get('status');
+
+    if (verificationSessionId && status) {
+      logger.info(
+        `Received GET request with callback params: session_id=${verificationSessionId} status=${status}`,
+      );
+
+      try {
+        // Update session in database (triggers Realtime notification)
+        const supabase = createClient(
+          Deno.env.get('SUPABASE_URL') ?? '',
+          Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+          { auth: { persistSession: false } },
+        );
+
+        // Get existing session to preserve vendor_data and workflow_id
+        const { data: existingSession } = await supabase
+          .from('didit_sessions')
+          .select('vendor_data, workflow_id, metadata')
+          .eq('session_id', verificationSessionId)
+          .maybeSingle();
+
+        // Upsert session status to database
+        // If session doesn't exist yet, create it with default values
+        const { error: dbError } = await supabase.from('didit_sessions').upsert(
+          {
+            session_id: verificationSessionId,
+            status,
+            webhook_type: 'status.updated' as const,
+            vendor_data: existingSession?.vendor_data ?? null,
+            workflow_id: existingSession?.workflow_id ?? null,
+            metadata: existingSession?.metadata ?? {},
+            decision: null,
+            updated_at: new Date().toISOString(),
+          },
+          {
+            onConflict: 'session_id',
+          },
+        );
+
+        if (dbError) {
+          logger.error('Failed to persist session from GET request', dbError);
+        } else {
+          logger.info(
+            `Session ${verificationSessionId} updated from GET request with status ${status}`,
+          );
+        }
+
+        // Redirect to frontend
+        const siteUrl = Deno.env.get('SITE_URL') || 'http://localhost:8080';
+        const redirectUrl = new URL(siteUrl);
+        redirectUrl.searchParams.set('verificationSessionId', verificationSessionId);
+        redirectUrl.searchParams.set('status', status);
+
+        return Response.redirect(redirectUrl.toString(), 302);
+      } catch (err) {
+        logger.error('Error processing GET request', err);
+        const siteUrl = Deno.env.get('SITE_URL') || 'http://localhost:8080';
+        return Response.redirect(`${siteUrl}?error=webhook_get_failed`, 302);
+      }
+    }
+  }
 
   if (req.method !== 'POST') {
     return new Response(JSON.stringify({ error: 'Method not allowed' }), {

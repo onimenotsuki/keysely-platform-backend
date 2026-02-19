@@ -17,6 +17,9 @@ verify_jwt = false
 [functions.didit-webhook]
 verify_jwt = false
 
+[functions.didit-callback]
+verify_jwt = false
+
 [functions.didit-create-session]
 verify_jwt = true
 
