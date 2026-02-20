@@ -13,3 +13,4 @@ COMMENT ON VIEW public.identity_documents_verification IS
   'Public verification status; anon can SELECT to get is_verified by document id.';
 
 GRANT SELECT ON public.identity_documents_verification TO anon;
+GRANT SELECT ON public.identity_documents_verification TO authenticated;

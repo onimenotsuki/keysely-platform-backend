@@ -14,3 +14,5 @@ USING (true);
 -- Ensure GRANT is in place (idempotent)
 GRANT SELECT ON public.profiles TO anon;
 GRANT SELECT ON public.occupations TO anon;
+GRANT SELECT ON public.profiles TO authenticated;
+GRANT SELECT ON public.occupations TO authenticated;
