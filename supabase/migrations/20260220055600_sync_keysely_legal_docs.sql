@@ -19,9 +19,9 @@ begin
     return new;
   end if;
 
-  -- Canonical document identifier (bucket + path) for hashing (digest expects bytea)
+  -- Canonical document identifier (bucket + path) for hashing (pgcrypto digest lives in extensions schema)
   doc_url := new.bucket_id || '/' || new.name;
-  doc_hash := encode(digest(convert_to(doc_url, 'UTF8'), 'sha256'), 'hex');
+  doc_hash := encode(extensions.digest(convert_to(doc_url, 'UTF8'), 'sha256'), 'hex');
 
   -- Deactivate all existing terms_and_conditions so only the new one is active
   update public.terms_definitions
