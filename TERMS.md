@@ -120,3 +120,12 @@ The database stores only metadata and `content_hash` in `terms_definitions`, not
 - Migrations: `supabase/migrations/20260219210000_create_terms_definitions_and_acceptance.sql`, `20260219210100_rpc_get_pending_terms.sql`.
 - RPC signature: `get_pending_terms()` returns `TABLE(term_id uuid, type varchar, version varchar)`.
 - Table for insert: `user_terms_acceptance` with columns `profile_id`, `term_id` (and optional `accepted_at`; default is `now()`).
+
+---
+
+## 11. Backend: Syncing terms from Storage (optional)
+
+The database stores only metadata in `terms_definitions`; the actual PDFs live in the Storage bucket `keysely_legal_docs`. To add a new version:
+
+1. Upload the PDF to the bucket `keysely_legal_docs` (e.g. via Dashboard or API with a role that has INSERT on that bucket).
+2. Insert a row into `terms_definitions` manually (e.g. via Dashboard or a backend script) with `type = 'terms'`, `version` = file name, `content_hash` = SHA-256 of `keysely_legal_docs/<filename>`, `is_active = true`, and set `is_active = false` for previous terms rows.
