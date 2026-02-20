@@ -1,7 +1,7 @@
--- Trigger: on insert into storage bucket keysely_legal_documents, insert a row into
+-- Trigger: on insert into storage bucket keysely_legal_docs, insert a row into
 -- terms_definitions and set all other terms_and_conditions rows to is_active = false.
 -- Requires pgcrypto for SHA-256.
--- Prerequisite: create bucket "keysely_legal_documents" in Dashboard or via API if it does not exist.
+-- Prerequisite: create bucket "keysely_legal_docs" in Dashboard or via API if it does not exist.
 
 create extension if not exists pgcrypto;
 
