@@ -1,0 +1,29 @@
+---
+description: Use Supabase Postgres best practices skill and Supabase MCP server together
+globs: supabase/**/*,**/*.sql,**/migrations/**
+alwaysApply: false
+---
+
+# Supabase: Skill + MCP
+
+## Skill (Best Practices)
+
+When writing or reviewing **SQL**, **schema design**, **indexes**, **RLS**, or **connection/pooling** in this project:
+
+1. **Use the Supabase Postgres best practices skill** (`supabase-postgres-best-practices`).
+2. Apply its rule categories by priority: Query Performance → Connection Management → Security & RLS → Schema Design → Concurrency → Data Access → Monitoring → Advanced.
+3. Prefer the skill’s references for correct vs incorrect SQL and Supabase-specific notes.
+
+## MCP Server (Operations)
+
+When you need to **run Supabase operations** (auth, database, etc.) from the agent:
+
+1. **Check auth**: If `mcps/plugin-supabase-supabase/STATUS.md` says the server needs authentication, call the MCP tool `mcp_auth` for server `plugin-supabase-supabase` with `{}` first.
+2. **Use MCP tools**: After auth, use the Supabase MCP server tools via `call_mcp_tool` with `server: "plugin-supabase-supabase"`. Check each tool’s schema in `mcps/plugin-supabase-supabase/tools/*.json` before calling.
+3. **Combine with skill**: When generating or changing SQL/schema via MCP or in code, still follow the Postgres best practices from the skill.
+
+## Summary
+
+- **Skill** = how to write and optimize Postgres/Supabase (guidance).
+- **MCP** = how to execute Supabase actions in this workspace (tools).
+- Use both: skill for correctness and performance, MCP for live interaction with Supabase.

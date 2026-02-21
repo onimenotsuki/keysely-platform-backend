@@ -18,3 +18,8 @@ This project relies on the Supabase CLI for local development.
 - **Location**: `supabase/templates/`
 - **Configuration**: Must be registered in `supabase/config.toml` under `[auth.email.template.<type>]`.
 - **Format**: Standard HTML with Go templates (Supabase default variables like `{{ .Token }}`, `{{ .ConfirmationURL }}`).
+
+## Supabase Skill + MCP
+- **Skill**: Use the **Supabase Postgres best practices** skill when writing or reviewing SQL, schema, indexes, RLS, or connection/pooling.
+- **MCP**: The **Supabase MCP server** (`plugin-supabase-supabase`) can run Supabase operations from the agent. If it needs auth, call the `mcp_auth` tool first; then use `call_mcp_tool` with the tool schemas in `mcps/plugin-supabase-supabase/tools/`.
+- **Rule**: See `.cursor/rules/supabase-skill-and-mcp.mdc` for when and how to combine the skill with the MCP.
